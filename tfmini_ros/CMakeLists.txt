@@ -1,23 +1,14 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(tfmini_ros)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  sensor_msgs
-  roscpp
-)
-find_package(Boost REQUIRED COMPONENTS system)
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
 
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+find_package(sensor_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+
+
+
+
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -90,20 +81,8 @@ find_package(Boost REQUIRED COMPONENTS system)
 #   cfg/DynReconf2.cfg
 # )
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+ament_package(
   INCLUDE_DIRS include
-#  LIBRARIES TFmini_ros
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
 )
 
 ###########
@@ -112,7 +91,7 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
- include_directories(${catkin_INCLUDE_DIRS} include)
+ include_directories(include)
 
 ## Declare a C++ library
 # add_library(TFmini_ros
@@ -124,21 +103,16 @@ catkin_package(
 ## either from message generation or dynamic reconfigure
 # add_dependencies(TFmini_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Declare a C++ executable
- add_executable(tfmini_ros_node 
-   src/TFmini_ros_node.cpp
-   src/TFmini.cpp
- )
+add_executable(tfmini_ros_node 
+  src/TFmini_ros_node.cpp
+  src/TFmini.cpp
+)
 
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(TFmini_ros_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(tfmini_ros_node
+  ${rclcpp_LIBRARIES}
+  ${sensor_msgs_LIBRARIES}
+)
 
-## Specify libraries to link a library or executable target against
- target_link_libraries(tfmini_ros_node
-   ${catkin_LIBRARIES}
- )
- 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -std=gnu++11")
 #############
 ## Install ##
@@ -155,26 +129,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -std=gnu++11")
 # )
 
 ## Mark executables and/or libraries for installation
- install(TARGETS tfmini_ros_node tfmini_ros_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+install(TARGETS
+  tfmini_ros_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
-## Mark cpp header files for installation
- install(DIRECTORY include
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
- )
+install(DIRECTORY include/
+  DESTINATION include/
+)
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
- install(FILES
-  launch/tfmini.launch
-#   # myfile1
-#   # myfile2
-   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
- )
+install(DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch
+)
 
 #############
 ## Testing ##
